@@ -4,32 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tax Calculator</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #555;
+            text-align: left;
+        }
+
+        select, input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+            button:hover {
+                background-color: #218838;
+            }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .result-container {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Tax Calculator</h1>
 
         <form id="taxForm">
-            <label for="country">Country:</label>
-            <input type="text" id="country" name="country" required>
-            <br><br>
+            <label for="country">Choose Country:</label>
+            <select id="country">
+                <option value="">Select Country</option>
+                <option value="Austria">Austria</option>
+                <option value="Belgium">Belgium</option>
+                <option value="Bulgaria">Bulgaria</option>
+                <option value="Croatia">Croatia</option>
+                <option value="Cyprus">Cyprus</option>
+                <option value="Czech Republic">Czech Republic</option>
+                <option value="Denmark">Denmark</option>
+                <option value="Estonia">Estonia</option>
+                <option value="Finland">Finland</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Greece">Greece</option>
+                <option value="Hungary">Hungary</option>
+                <option value="Ireland">Ireland</option>
+                <option value="Italy">Italy</option>
+                <option value="Latvia">Latvia</option>
+                <option value="Lithuania">Lithuania</option>
+                <option value="Luxembourg">Luxembourg</option>
+                <option value="Malta">Malta</option>
+                <option value="Netherlands">Netherlands</option>
+                <option value="Poland">Poland</option>
+                <option value="Portugal">Portugal</option>
+                <option value="Romania">Romania</option>
+                <option value="Slovakia">Slovakia</option>
+                <option value="Slovenia">Slovenia</option>
+                <option value="Spain">Spain</option>
+                <option value="Sweden">Sweden</option>
+            </select>
 
             <label for="price">Price:</label>
-            <input type="number" id="price" name="price" required>
-            <br><br>
+            <input type="number" id="price" placeholder="Enter Price" step="0.01" required>
 
-            <label for="vatRate">VAT Rate:</label>
-            <input type="number" id="vatRate" name="vatRate" required>
-            <br><br>
-
-            <button type="submit">Calculate Tax</button>
+            <button type="submit">Calculate</button>
         </form>
 
-        <h2>Result:</h2>
-        <p id="result"></p>
+        <div class="result-container">
+            <p id="result"></p>
+            <p id="finalPrice"></p>
+        </div>
+
+        <button id="copyTextBtn">Copy Text</button>
+        <button id="copyPriceBtn">Copy Price</button>
+        <button id="nonEUTextBtn">NON-EU Text</button>
     </div>
 
-    <script src="js/script.js"></script>
+    <script>
+        document.getElementById("taxForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const country = document.getElementById("country").value;
+            const price = document.getElementById("price").value;
+
+            if (!country || !price) {
+                document.getElementById("result").innerText = "Please select a country and enter a price.";
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/calculate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        country: country,
+                        price: parseFloat(price)
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById('result').innerText = data.message;
+                document.getElementById('finalPrice').innerText = `Final Price: ${price}`;
+            } catch (error) {
+                document.getElementById('result').innerText = 'Failed to calculate tax.';
+            }
+        });
+
+        document.getElementById("copyTextBtn").addEventListener("click", function () {
+            const textToCopy = document.getElementById("result").innerText;
+            if (textToCopy) {
+                navigator.clipboard.writeText(textToCopy);
+                alert("Text copied!");
+            }
+        });
+
+        document.getElementById("copyPriceBtn").addEventListener("click", function () {
+            const priceToCopy = document.getElementById("finalPrice").innerText;
+            if (priceToCopy) {
+                navigator.clipboard.writeText(priceToCopy);
+                alert("Price copied!");
+            }
+        });
+
+        document.getElementById("nonEUTextBtn").addEventListener("click", function () {
+            const nonEUText = "Etsy collects State sales tax and reimburses the relevant authorities on our behalf.";
+            navigator.clipboard.writeText(nonEUText);
+            alert("NON-EU Text copied!");
+        });
+    </script>
+
 </body>
 </html>

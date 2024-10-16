@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using TaxCalculatorAPI.Models;
 using TaxCalculatorAPI.Services;
 
 namespace TaxCalculatorAPI.Controllers
@@ -8,18 +7,29 @@ namespace TaxCalculatorAPI.Controllers
     [Route("api/[controller]")]
     public class CalculateController : ControllerBase
     {
-        private readonly TaxCalculatorService _taxService;
+        private readonly TaxCalculatorService _taxCalculatorService;
 
-        public CalculateController(TaxCalculatorService taxService)
+        public CalculateController(TaxCalculatorService taxCalculatorService)
         {
-            _taxService = taxService;
+            _taxCalculatorService = taxCalculatorService;
         }
 
         [HttpPost]
-        public IActionResult Calculate([FromBody] TaxRequest request)
+        public IActionResult CalculateTax([FromBody] TaxRequest request)
         {
-            var result = _taxService.CalculatePrice(request.Price, request.VatRate);
-            return Ok(new { message = $"The {request.VatRate}% tax of {request.Country} will be reimbursed. Final price: {result:F2} euros." });
+            if (request == null || string.IsNullOrEmpty(request.Country) || request.Price <= 0)
+            {
+                return BadRequest("Invalid input.");
+            }
+
+            string result = _taxCalculatorService.CalculateTax(request.Country, request.Price);
+            return Ok(new { message = result });
         }
+    }
+
+    public class TaxRequest
+    {
+        public string Country { get; set; }
+        public double Price { get; set; }
     }
 }

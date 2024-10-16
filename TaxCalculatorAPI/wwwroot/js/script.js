@@ -2,17 +2,20 @@
     event.preventDefault();
 
     const country = document.getElementById('country').value;
-    const price = document.getElementById('price').value;
-    const vatRate = document.getElementById('vatRate').value;
+    const price = parseFloat(document.getElementById('price').value);
+
+    if (!country || isNaN(price)) {
+        document.getElementById('result').innerText = 'Please select a valid country and enter a valid price.';
+        return;
+    }
 
     const requestBody = {
         country: country,
-        price: parseFloat(price),
-        vatRate: parseFloat(vatRate)
+        price: price
     };
 
     try {
-        const response = await fetch('https://localhost:5001/api/calculate', {
+        const response = await fetch('/api/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -20,19 +23,14 @@
             body: JSON.stringify(requestBody)
         });
 
-        // Log the response status for debugging
-        console.log('Response Status:', response.status);
-
-        // Check if the response is okay (status code 200-299)
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error('API request failed');
         }
 
         const data = await response.json();
-        console.log('Response Data:', data);  // Log the response data for debugging
         document.getElementById('result').innerText = data.message;
     } catch (error) {
-        console.error('Error:', error);  // Log detailed error information
+        console.error('Error:', error);
         document.getElementById('result').innerText = 'Failed to calculate tax.';
     }
 });
