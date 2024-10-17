@@ -22,7 +22,7 @@ namespace TaxCalculatorAPI.Controllers
                 return BadRequest("Invalid input.");
             }
 
-            string result = _taxCalculatorService.CalculateTax(request.Country, request.Price);
+            string result = _taxCalculatorService.CalculatePrice(request.Country, request.Price);
             return Ok(new { message = result });
         }
     }
