@@ -36,7 +36,7 @@ namespace TaxCalculatorAPI.Services
             {"Sweden", 25.0}
         };
 
-        public string CalculateTax(string country, double price)
+        public string CalculatePrice(string country, double price)
         {
             if (!euVatRates.TryGetValue(country, out double vatRate))
             {

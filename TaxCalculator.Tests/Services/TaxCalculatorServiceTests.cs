@@ -14,13 +14,13 @@ namespace TaxCalculator.Tests.Services
         }
 
         [Test]
-        [TestCase(100, 19, 84.03)]
-        [TestCase(50, 19, 42.02)]
-        [TestCase(200, 20, 166.67)]
-        public void CalculatePrice_ShouldReturnCorrectValue(double price, double vatRate, double expectedResult)
+        [TestCase("Germany", 100, 84.03)]  // Passing country name as string
+        [TestCase("Germany", 50, 42.02)]   // Adjust country names and prices as needed
+        [TestCase("France", 200, 166.67)]  // Another example with France
+        public void CalculatePrice_ShouldReturnCorrectValue(string country, double price, double expectedResult)
         {
-            var result = _taxCalculatorService.CalculatePrice(price, vatRate);
-            Assert.That(result, Is.EqualTo(expectedResult).Within(0.01));
+            var result = _taxCalculatorService.CalculatePrice(country, price);  // Using the CalculateTax method
+            Assert.That(result, Does.Contain(expectedResult.ToString()));  // Verifying that the result contains the expected price
         }
     }
 }
